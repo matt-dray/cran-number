@@ -106,42 +106,27 @@ cran_authors_df %>%
 
 # Graph
 
-## Create edge list
+```{r}
+library(tidygraph)
 
-Create a matrix of all the relationships. This takes a while to run given the amount of data.
+cran_graph <- tidygraph::as_tbl_graph(cran_authors_df)
+
+cran_graph %>% 
+  activate(nodes) %>%
+  mutate(id = row_number())
+```
 
 ```{r}
-tictoc::tic()
+library(ggraph)
 
-edge_list <- cran_authors_df %>%
-  map(combn, m = 2) %>%
-  do.call("cbind", .) %>%
-  t() %>%
-  dplyr::as_data_frame() %>%
-  arrange(V1, V2) %>%
-  count(V1, V2)
-
-beepr::beep(8)
-
-tictoc::toc()
+ggraph::ggraph(cran_graph, layout = "nicely") +
+  geom_edge_link0(alpha = 0.6) +
+  #geom_node_point()
+  geom_node_point(alpha = 0.6) +
+  theme_graph()
 ```
- 
-## Tidygraph it
 
-Turn the edge list into a tidygraph object.
 
-```{r}
-g <- edge_list %>%
-  select(V1, V2) %>%
-  as.matrix() %>%
-  graph.edgelist(directed = FALSE) %>%
-  as_tbl_graph() %>%
-  activate("edges") %>%
-  mutate(Weight = edge_list$n) %>%
-  activate("nodes") %>%
-  rename(Name = name) %>%
-  mutate(Component = group_components()) %>%
-  filter(Component == names(table(Component))[which.max(table(Component))])
-```
+
 
 Check out [Francois's blogpost](http://www.pieceofk.fr/?p=431) to see some visualisations and network statistics of these data.
