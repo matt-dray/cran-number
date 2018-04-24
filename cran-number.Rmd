@@ -27,39 +27,32 @@ I've used the code written by Francois Keck in his excellent blogpost '[Explorin
 
 > reconstruct a social graph where each node would be a person... and two persons would be connected by an edge if they have collaborated on the same package
 
-# Prepare workspace
-
-```{r}
-library(purrr)
-library(stringr)
-library(tidyr)
-library(dplyr)
-library(tictoc)
-library(beepr)
-```
-
 # Get package authors
 
 At first thought I would have to mine the CRAN website to get all the authors. Then I found out about the `CRAN_package_db()` function, which returns over 60 variables for each package on CRAN (name, version, depends, author, etc).
 
 ```{r}
-cran_packages <- tools::CRAN_package_db()
+pkgs <- tools::CRAN_package_db()
 ```
 
-At time of writing, this results `r nrow(cran_packages)` separate packages.
+At time of writing, this results `r nrow(pkgs)` separate packages.
 
 # Cleaning and preparing
 
 For now we're interested in the authors.
 
 ```{r}
-cran_authors <- cran_packages$Author
+author <- pkgs$Author
 ```
 
 The code in this chunk is directly from [Francois](http://www.pieceofk.fr/?p=431). It gets me exactly what I need: a list where each element is a package and contains a vector of authors. Mostly the code replaces inconsequential strings with a bunch of regex and the `stringr` functions. For example, some names in the author field are followed by something like `[aut, cre]`, meaning the person was the package `aut`hor and `cre`ator. Sometimes the names aren't separated easily into a vector because of they contain phrases such as `and` and `with`, which we should also remove.
 
 ```{r}
-cran_authors_clean <- cran_authors %>%
+library(dplyr)
+library(stringr)
+library(purrr)
+
+author_clean <- author %>%
   # regex to replace unwanted text
   stringr::str_replace_all("\\(([^)]+)\\)", "") %>%
   stringr::str_replace_all("\\[([^]]+)\\]", "") %>%
@@ -67,66 +60,102 @@ cran_authors_clean <- cran_authors %>%
   stringr::str_replace_all("\n", " ") %>%
   stringr::str_replace_all("[Cc]ontribution.* from|[Cc]ontribution.* by|[Cc]ontributors", " ") %>%
   stringr::str_replace_all("\\(|\\)|\\[|\\]", " ") %>%
-  # conversion
+  # encoding conversion
   iconv(to = "ASCII//TRANSLIT") %>%
   # further string substitution
   stringr::str_replace_all("'$|^'", "") %>%
   gsub("([A-Z])([A-Z]{1,})", "\\1\\L\\2", ., perl = TRUE) %>%
   gsub("\\b([A-Z]{1}) \\b", "\\1\\. ", .) %>%
   # further string substittion with map()
-  purrr::map(stringr::str_split, ",|;|&| \\. |--|(?<=[a-z])\\.| [Aa]nd | [Ww]ith | [Bb]y ", simplify = TRUE) %>%
+  purrr::map(
+    stringr::str_split,
+    ",|;|&| \\. |--|(?<=[a-z])\\.| [Aa]nd | [Ww]ith | [Bb]y ",
+    simplify = TRUE
+  ) %>%
   purrr::map(stringr::str_replace_all, "[[:space:]]+", " ") %>%
   purrr::map(stringr::str_replace_all, " $|^ | \\.", "") %>%
   purrr::map(function(x) x[stringr::str_length(x) != 0]) %>%
   # reintroduce package names
-  purrr::set_names(cran_packages$Package) %>%
+  purrr::set_names(pkgs$Package) %>%
   magrittr::extract(map_lgl(., function(x) length(x) > 1))
-```
 
+head(author_clean)
+```
 # To dataframe
 
 Turn the list into a two-column tidy dataframe with a row for each package-author relationship.
 
 ```{r}
-cran_authors_df <- cran_authors_clean %>%  
-  tibble::enframe() %>% 
-  tidyr::unnest() %>% 
-  dplyr::transmute(name = name, author = tolower(value))
+library(tibble)
+library(tidyr)
+
+author_df <- author_clean %>%  
+  tibble::enframe() %>%  # transform list to df with listcol
+  tidyr::unnest() %>%  # unpack the listcols in tidy format
+  dplyr::transmute(
+    package = name,
+    author = tolower(value) # make author names lower case
+  )
+```
+
+Here's the author list for `readxl` for example.
+
+```{r}
+filter(author_df, package == "readxl")
 ```
 
 We can have a quick look at the top authors by count.
 
 ```{r}
-cran_authors_df %>% 
-  janitor::tabyl(author) %>% 
+author_df %>% 
+  dplyr::count(author) %>% 
   dplyr::arrange(desc(n)) %>% 
-  slice(1:20) %>% 
-  knitr::kable()
+  dplyr::top_n(10, n)
 ```
 
-# Graph
-
 ```{r}
+library(igraph)
 library(tidygraph)
 
-cran_graph <- tidygraph::as_tbl_graph(cran_authors_df)
-
-cran_graph %>% 
-  activate(nodes) %>%
-  mutate(id = row_number())
+edge_list <- author_clean %>%
+  purrr::map(combn, m = 2) %>%
+  do.call("cbind", .) %>%
+  t() %>%
+  dplyr::as_data_frame() %>%
+  mutate(V1 = tolower(V1), V2 = tolower(V2)) %>% 
+  dplyr::arrange(V1, V2) %>%
+  dplyr::count(V1, V2)
+ 
+g <- edge_list %>%
+  dplyr::select(V1, V2) %>%
+  as.matrix() %>%
+  igraph::graph.edgelist(directed = FALSE) %>%
+  tidygraph::as_tbl_graph() %>%
+  # activate("edges") %>%
+  # mutate(Weight = edge_list$n) %>%
+  tidygraph::activate("nodes") %>%
+  dplyr::rename(Name = name) %>%
+  dplyr::mutate(Vertex = row_number(), Component = group_components()) %>%
+  dplyr::filter(Component == names(table(Component))[which.max(table(Component))])
 ```
 
 ```{r}
-library(ggraph)
+as_tibble(g) %>% 
+  filter(Name %in% c("hadley wickham", "jenny bryan", "garrett grolemund", "yihui xie", "david robinson", "julia silge", "joe cheng"))
+```
 
-ggraph::ggraph(cran_graph, layout = "nicely") +
-  geom_edge_link0(alpha = 0.6) +
-  #geom_node_point()
-  geom_node_point(alpha = 0.6) +
-  theme_graph()
+https://stackoverflow.com/questions/19996444/find-all-shortest-paths-using-igraph-r
+
+```{r}
+distMatrix <- shortest.paths(g, v=V(g), to=V(g))
+
+distMatrix[49, 677]
 ```
 
 
+# Session information
 
-
+```{r}
+sessionInfo()
+```
 Check out [Francois's blogpost](http://www.pieceofk.fr/?p=431) to see some visualisations and network statistics of these data.
