@@ -2,23 +2,26 @@
 
 # devtools::install_github("ikosmidis/cranly")
 library(cranly)
+library(dplyr)
+library(tibble)
+library(tidyr)
+library(tools)
 
-p_db <- tools::CRAN_package_db()
-package_db <- clean_CRAN_db(p_db)
+# Database
 
-attr(package_db, "timestamp")
+pkg_db <- CRAN_package_db() %>% 
+  clean_CRAN_db() %>%
+  as_tibble() 
 
-package_network <- build_network(package_db)
+# Row per package-author
 
-set_author <- "Duncan Garmonsway"
+pkg_aut <- pkg_db %>% 
+  select(package, author) %>% 
+  unnest()
 
-my_packages <- package_by(package_network, set_author)
+# Top authors
 
-plot(package_network, package = my_packages[c(2, 3)], title = TRUE, legend = TRUE)
-
-author_network <- build_network(package_db, perspective = "author")
-
-plot(author_network, author = set_author)
-
-PL_dependence_tree <- build_dependence_tree(package_network, my_packages[3])
-plot(PL_dependence_tree)
+pkg_aut %>% 
+  count(author) %>% 
+  arrange(desc(n)) %>% 
+  top_n(10, n)
