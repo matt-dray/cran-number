@@ -8,6 +8,11 @@ library(tidyr)
 library(tools)
 library(tidygraph)
 library(purrr)
+library(ggraph)
+
+
+# Prepare data ------------------------------------------------------------
+
 
 # Database
 
@@ -31,9 +36,9 @@ pkg_aut %>%
 # Small sample to test with
 
 pkg_aut_small <- pkg_aut %>%
-  filter(package %in% c("dplyr", "readr"))
+  filter(package %in% c("dplyr", "readr", "purrr", "lme4"))
 
-# Within each packagem get author combos
+# Within each package, get author combos
 # https://www.williamrchase.com/post/finding-combinations-in-the-tidyverse/
 # How to reattach the package name?
 
@@ -49,3 +54,19 @@ pkg_aut_graph <- pkg_aut_small %>%
 # Build tidygraph
 
 pkg_aut_graph <- as_tbl_graph(pkg_aut_graph, directed = FALSE)
+
+
+# Testing ggraph ----------------------------------------------------------
+
+
+# Calculate centrality as 'popularity'
+
+graph_pop <- pkg_aut_graph %>% 
+  mutate(Popularity = centrality_degree(mode = 'in')) %>% 
+  arrange(desc(Popularity))
+
+# Call plot
+
+ggraph(graph_pop, layout = "kk") + 
+  geom_edge_link() + 
+  geom_node_point(aes(size = Popularity))
