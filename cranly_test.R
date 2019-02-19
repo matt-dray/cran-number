@@ -43,7 +43,7 @@ pkg_aut %>%
 # Small sample to test with
 
 pkg_aut_small <- pkg_aut %>%
-  filter(package %in% c("dplyr", "readr", "purrr", "magrittr"))
+  filter(package %in% c("magrittr", "available", "googlesheets", "reprex"))
 
 # Within each package, get author combos
 # https://www.williamrchase.com/post/finding-combinations-in-the-tidyverse/
@@ -70,7 +70,10 @@ pkg_aut_graph <- as_tbl_graph(pkg_aut_graph, directed = FALSE)
 # Calculate centrality as 'popularity'
 
 graph_pop <- pkg_aut_graph %>% 
-  mutate(Popularity = centrality_degree(mode = 'in')) %>% 
+  mutate(
+    Popularity = centrality_degree(mode = 'in'),
+    Eccentricity = node_eccentricity()
+    ) %>% 
   arrange(desc(Popularity))
 
 # Call plot
@@ -83,3 +86,26 @@ ggraph(graph_pop, layout = "kk") +
     label_dodge = unit(2.5, 'mm')
   ) + 
   geom_node_point(aes(size = Popularity))
+
+
+
+# Short paths -------------------------------------------------------------
+
+
+short_graph <- pkg_aut_graph %>% 
+  convert(to_shortest_path, from = 10, to = 2) 
+
+short_graph %>% 
+  activate(edges) %>% 
+  as_tibble() %>% 
+  summarise(n()) %>% pull()
+
+ggraph(short_graph) +
+  geom_edge_fan(  # edges between same ndoes are separated
+    aes(label = package),
+    angle_calc = 'along',
+    label_dodge = unit(2.5, 'mm')
+  ) + 
+  geom_node_point(aes(colour = name)) +
+  theme_graph()
+
