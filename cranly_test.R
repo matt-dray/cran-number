@@ -18,7 +18,7 @@ library(ggraph)
 
 pkg_db <- CRAN_package_db() %>% 
   clean_CRAN_db() %>%
-  as_tibble() 
+  as_tibble()
 
 # Row per package-author
 
@@ -64,43 +64,36 @@ pkg_aut_graph <- pkg_aut_small %>%
 pkg_aut_graph <- as_tbl_graph(pkg_aut_graph, directed = FALSE)
 
 
-# Testing ggraph ----------------------------------------------------------
-
-
-# Calculate centrality as 'popularity'
-
-graph_pop <- pkg_aut_graph %>% 
-  mutate(
-    Popularity = centrality_degree(mode = 'in'),
-    Eccentricity = node_eccentricity()
-    ) %>% 
-  arrange(desc(Popularity))
-
-# Call plot
-# https://www.data-imaginist.com/2017/ggraph-introduction-edges/
-  
-ggraph(graph_pop, layout = "kk") + 
-  geom_edge_fan(  # edges between same ndoes are separated
-    aes(label = package),
-    angle_calc = 'along',
-    label_dodge = unit(2.5, 'mm')
-  ) + 
-  geom_node_point(aes(size = Popularity))
-
-
-
 # Short paths -------------------------------------------------------------
 
+# Select names (could be input via Shiny dropdown)
+from_name <- "Joanna Zhao"
+to_name <- "Gábor Csárdi"
 
-short_graph <- pkg_aut_graph %>% 
-  convert(to_shortest_path, from = 10, to = 2) 
+# Get node numbers (numeric accepted by to_shortest_path)
+from_node <- graph_pop %>% 
+  as_tibble() %>% 
+  filter(name == from_name) %>% 
+  pull(number)
 
+to_node <- graph_pop %>% 
+  as_tibble() %>% 
+  filter(name == to_name) %>% 
+  pull(number)
+
+# Limit the network to the authors specified in to_name and from_name 
+short_graph <- pkg_aut_graph %>%
+  convert(to_shortest_path, from = from_node, to = to_node)
+
+# Get the number of connections between them
 short_graph %>% 
   activate(edges) %>% 
   as_tibble() %>% 
-  summarise(n()) %>% pull()
+  summarise(n()) %>%
+  pull()
 
-ggraph(short_graph) +
+# Plot the network between the people named in from_name and to_name
+ggraph(short_graph, layout = "nicely") +
   geom_edge_fan(  # edges between same ndoes are separated
     aes(label = package),
     angle_calc = 'along',
@@ -109,3 +102,27 @@ ggraph(short_graph) +
   geom_node_point(aes(colour = name)) +
   theme_graph()
 
+# Testing ggraph ----------------------------------------------------------
+
+
+# Calculate centrality as 'popularity'
+
+graph_pop <- pkg_aut_graph %>% 
+  mutate(
+    number = row_number(),
+    Popularity = centrality_degree(mode = 'in'),
+    Eccentricity = node_eccentricity()
+  ) %>% 
+  arrange(desc(Popularity))
+
+# Call plot
+# https://www.data-imaginist.com/2017/ggraph-introduction-edges/
+
+ggraph(graph_pop, layout = "kk") + 
+  geom_edge_fan(  # edges between same ndoes are separated
+    aes(label = package),
+    angle_calc = 'along',
+    label_dodge = unit(2.5, 'mm')
+  ) + 
+  geom_node_point(aes(size = Popularity)) +
+  theme_graph()
