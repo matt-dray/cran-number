@@ -63,6 +63,34 @@ pkg_aut_graph <- pkg_aut_small %>%
 
 pkg_aut_graph <- as_tbl_graph(pkg_aut_graph, directed = FALSE)
 
+# Add features to nodes
+graph_pop <- pkg_aut_graph %>% 
+  mutate(
+    number = row_number(),
+    Popularity = centrality_degree(mode = 'in'),
+    Eccentricity = node_eccentricity()
+  ) %>% 
+  arrange(desc(Popularity))
+
+
+# Testing ggraph ----------------------------------------------------------
+
+
+# Calculate centrality as 'popularity'
+
+
+
+# Call plot
+# https://www.data-imaginist.com/2017/ggraph-introduction-edges/
+
+ggraph(graph_pop, layout = "kk") + 
+  geom_edge_fan(  # edges between same ndoes are separated
+    aes(label = package),
+    angle_calc = 'along',
+    label_dodge = unit(2.5, 'mm')
+  ) + 
+  geom_node_point(aes(size = Popularity)) +
+  theme_graph()
 
 # Short paths -------------------------------------------------------------
 
@@ -102,27 +130,3 @@ ggraph(short_graph, layout = "nicely") +
   geom_node_point(aes(colour = name)) +
   theme_graph()
 
-# Testing ggraph ----------------------------------------------------------
-
-
-# Calculate centrality as 'popularity'
-
-graph_pop <- pkg_aut_graph %>% 
-  mutate(
-    number = row_number(),
-    Popularity = centrality_degree(mode = 'in'),
-    Eccentricity = node_eccentricity()
-  ) %>% 
-  arrange(desc(Popularity))
-
-# Call plot
-# https://www.data-imaginist.com/2017/ggraph-introduction-edges/
-
-ggraph(graph_pop, layout = "kk") + 
-  geom_edge_fan(  # edges between same ndoes are separated
-    aes(label = package),
-    angle_calc = 'along',
-    label_dodge = unit(2.5, 'mm')
-  ) + 
-  geom_node_point(aes(size = Popularity)) +
-  theme_graph()

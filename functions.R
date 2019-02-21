@@ -17,11 +17,6 @@ library(cranly)
 # Functions ---------------------------------------------------------------
 
 
-# To think about
-# * Ensure to_shortest_path
-# * Ensure active(nodes)
-# * 'cn_' for 'Cran Number'?
-
 # Argumentless function to get the CRAN combos in tbl_graph form
 cn_combo <- function() {
   
@@ -66,7 +61,22 @@ cn_combo <- function() {
 # Get a simplified tbl_graph of two selected authors
 # tidy_graph will be the output from cn_combo
 # name_from and name_to will be quoted author names (as per cn_combo$name)
-cn_pair <- function(tidy_graph, name_a, name_b) {
+cn_pair <- function(tidy_graph, name_a, name_b = "Hadley Wickham") {
+  
+  # if(class(tidy_graph) == "tbl_graph") {
+  #   stop("The tidy_graph argument should be a tbl_graph object\n",
+  #        "You have provided an object of class ", class(tidy_graph)[1])
+  # }
+  
+  if(!is.character(name_a)) {
+    stop("The name_a argument should be a character string\n",
+         "You have provided an object of class ", class(name_a)[1])
+  }
+  
+  if(!is.character(name_b)) {
+    stop("The name_b argument should be a character string\n",
+         "You have provided an object of class ", class(name_b)[1])
+  }
   
   node_from <- tidy_graph %>% 
     as_tibble() %>% 
@@ -89,10 +99,15 @@ cn_pair <- function(tidy_graph, name_a, name_b) {
 
 # A separate function that takes cn_pair and outputs a numeric distance value
 # takes tbl_graph from cn_pair
-cn_distance <- function(tidy_graph_pair) {
+cn_distance <- function(pair_graph) {
+  
+  # if(class(tidy_graph) == "tbl_graph") {
+  #   stop("The tidy_graph argument should be a tbl_graph object\n",
+  #        "You have provided an object of class ", class(tidy_graph)[1])
+  # }
   
   # Get the number of connections between them
-  distance <- tidy_graph_pair %>% 
+  distance <- pair_graph %>% 
     activate(edges) %>% 
     as_tibble() %>% 
     summarise(n()) %>%
@@ -103,17 +118,23 @@ cn_distance <- function(tidy_graph_pair) {
   
 }
 
-# Opinionated plot for example's sake
+# Plot for example's sake
 cn_plot <- function(pair_graph) {
+  
+  # if(class(tidy_graph) == "tbl_graph") {
+  #   stop("The tidy_graph argument should be a tbl_graph object\n",
+  #        "You have provided an object of class ", class(tidy_graph)[1])
+  # }
   
   plot <- pair_graph %>% 
   ggraph(layout = "nicely") +
-    geom_edge_fan(
+    geom_edge_link(
       aes(label = package),
-      angle_calc = 'along',
-      label_dodge = unit(2.5, 'mm')
+      angle_calc = "along",
+      label_dodge = unit(2.5, "mm")
     ) + 
-    geom_node_point(aes(colour = name)) +
+    #geom_node_point() +
+    geom_node_label(aes(label = name)) +
     theme_graph()
   
   return(plot)
@@ -121,16 +142,14 @@ cn_plot <- function(pair_graph) {
 }
 
 
-
 # Try functions -----------------------------------------------------------
 
 
-test1 <- cn_combo()
+# test1 <- cn_combo()
 
-name_a <- test1 %>% as_tibble() %>% sample_n(1) %>% pull(name)
-name_b <- test1 %>% as_tibble() %>% sample_n(1) %>% pull(name)
+name_rand <- test1 %>% as_tibble() %>% sample_n(1) %>% pull(name)
 
-test2 <- cn_pair(test1, name_a, name_b)
+test2 <- cn_pair(test1, name_rand)
 print(test2)
 
 test3 <- cn_distance(test2)
@@ -138,3 +157,9 @@ print(test3)
 
 test4 <- cn_plot(test2)
 print(test4)
+
+# pipe it
+test1 %>% 
+  cn_pair(name_rand) %>% 
+  cn_distance()
+  # cn_plot()
