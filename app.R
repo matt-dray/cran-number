@@ -31,6 +31,8 @@ ui <- fluidPage(
     
     # Define the sidebar with one input
     sidebarPanel(
+      helpText("UNDER DEVELOPMENT"),
+      hr(),
       helpText("Type a CRAN author's name, select them and hit 'Go'"),
       selectInput(
         inputId = "authorA",
