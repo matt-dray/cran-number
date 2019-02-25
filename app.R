@@ -24,7 +24,7 @@ cran_graph <- readRDS("www/cran_graph.RDS")
 ui <- fluidPage(    
   
   # Give the page a title
-  titlePanel("{kevinbacran} demo: what's your 'Hadley Number'?"),
+  titlePanel("{kevinbacran} demo: what's your Hadley Number?"),
   
   # Generate a row with a sidebar
   sidebarLayout(      
@@ -74,7 +74,7 @@ server <- function(input, output, session) {
     
     distance <- kb_distance(pairs)
     
-    return(distance)
+    return(paste("Hadley Number:", distance))
     
   })
   
