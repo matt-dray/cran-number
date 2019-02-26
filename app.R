@@ -21,28 +21,31 @@ cran_graph <- readRDS("www/cran_graph.RDS")
 
 
 # Use a fluid Bootstrap layout
-ui <- fluidPage(    
+ui <- fluidPage(
   
   # Give the page a title
   titlePanel("{kevinbacran} demo: what's your Hadley Number?"),
   
   # Generate a row with a sidebar
-  sidebarLayout(      
+  sidebarLayout(
     
     # Define the sidebar with one input
     sidebarPanel(
       helpText("UNDER DEVELOPMENT"),
       hr(),
-      helpText("Type a CRAN author's name, select them and hit 'Go'"),
+      helpText("Type a CRAN author's name and hit Go"),
       selectInput(
         inputId = "authorA",
         label = "Author:", 
         choices = unique(cran_tidy$author),
         multiple = FALSE,
-        selected = "Joanna Zhao"),
+        selected = "Aaron Christ"),
       actionButton("go", "Go"),
       hr(),
-      helpText("Source: Comprehensive R Archive Network (CRAN)")
+      helpText("This is a demo of {kevinbacran}, a small package for obtaining a
+               tidygraph of CRAN authors and calculating the separation between
+               any two. It's based on the Six Degrees of Kevin Bacon and Erdos
+               Numbers.")
     ),
     
     # Create a spot for the barplot
