@@ -63,3 +63,21 @@ hw_graphs_no_error <- hw_graphs %>% filter(hadley_separation > 0)
 # Save these
 saveRDS(hw_graphs, "data/hw_graphs.RDS")
 saveRDS(hw_graphs_no_error, "data/hw_graphs_no_error.RDS")
+
+
+# Plot --------------------------------------------------------------------
+
+# kb_plot
+#hw_graphs$hadley_graph[hw_graphs$author_name == "Franz Rubel"][[1]] %>%
+hw_graphs$hadley_graph[hw_graphs$author_name == "Duncan Gormansway"][[1]] %>%
+  ggraph(layout = "nicely") +
+  geom_edge_fan(
+    aes(label = paste0("{", package, "}"), family = "sans"),
+    edge_colour = "lightgrey",
+    angle_calc = "none",
+    #label_dodge = unit(2.5, "mm"),
+    label_colour = "lightgrey"
+  ) +
+  geom_node_point() +
+  geom_node_text(aes(label = name), repel = TRUE, family = "sans") +
+  theme_graph()

@@ -77,7 +77,7 @@ server <- function(input, output, session) {
     
     distance <- kb_distance(pairs)
     
-    return(paste("Hadley Number:", distance))
+    return(paste0("Hadley Number for ", input$authorA, ": ", distance))
     
   })
   
@@ -86,7 +86,7 @@ server <- function(input, output, session) {
     
     pairs <- kb_pair(cran_graph, name_a = author_select())
     
-    plot <- kb_plot(pair_graph = pairs)
+    plot <- kb_plot(pair_graph = pairs) 
     
     return(plot)
     
