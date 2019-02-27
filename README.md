@@ -1,10 +1,10 @@
 # {kevinbacran} test: what's your Hadley Number?
 
-This app is in development. In particular, the speed, graphics, error reporting and presentation need updating.
+This app is in development.
 
 ## TL;DR
 
-An app to demonstrate the [Six Degrees of Kevin Bacon](https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon). But it's for CRAN authors. And [Hadley Wickham](http://hadley.nz/) is Kevin Bacon.
+An app to demonstrate the [Six Degrees of Kevin Bacon](https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon). But it's for CRAN packages. And [Hadley Wickham](http://hadley.nz/) is Kevin Bacon.
 
 ## What?
 
