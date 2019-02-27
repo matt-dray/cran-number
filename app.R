@@ -15,7 +15,7 @@ library(shiny)
 library(kevinbacran)
 library(shinyhelper)
 library(magrittr)
-hw_graphs <-readRDS("www/hw_graphs_no_error.RDS")
+hw_graphs <- readRDS("www/hw_graphs_no_error.RDS")
 
 
 # UI ----------------------------------------------------------------------
@@ -34,7 +34,7 @@ ui <- fluidPage(
     sidebarPanel(
       selectInput(
         inputId = "authorA",
-        label = "Select a CRAN author and press Go",
+        label = "Type CRAN author name and hit Go",
         choices = unique(hw_graphs$author_name),
         multiple = FALSE,
         selected = "Aaron Christ") %>% 
@@ -51,22 +51,22 @@ ui <- fluidPage(
           ),
           size = "s"),
       actionButton("go", "Go"),
-      hr(),
+      p(),
+      HTML("The {kevinbacran} package helps calculate the separation of any two
+           authors on the CRAN-package network graph."),
+      p(),
       HTML("It's like <a href='https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon'>
-           the Six Degrees of Kevin Bacon</a>. Except it's for CRAN packages.
-           And <a href='http://hadley.nz/'>Hadley Wickham</a> is Kevin Bacon."),
+           the Six Degrees of Kevin Bacon</a>. Except it's for CRAN authors.
+           And in this example, <a href='http://hadley.nz/'>Hadley Wickham</a>
+           is Kevin Bacon."),
       p(),
-      HTML("The {kevinbacran} package calculates the separation of any two
-           authors on the CRAN package network graph. This app implements
-           functions from the package to fetch networks of the shortest path from
-           each author to Hadley Wickham."),
-      p(),
+
       HTML("Why not:
            <ul>
            <li>toot me <a href='https://www.twitter.com/mattdray/'>@mattdray</a></li>
-           <li>read more in this <a href='https://rostrum.blog2019/02/27/hadley-number/'>blogpost</a></li>
-           <li>try <a href='https://www.matt-dray.github.io/kevinbacran/'>{kevinbacran}</a></li>
-           <li>get the source on <a href='https://www.github.com/matt-dray/hadley-number/'>GitHub</a></li>
+           <li>read more in this <a href='https://rostrum.blog/2019/02/27/hadley-number/'>blogpost</a></li>
+           <li>try <a href='https://matt-dray.github.io/kevinbacran/'>{kevinbacran}</a></li>
+           <li>get the source on <a href='https://github.com/matt-dray/hadley-number/'>GitHub</a></li>
            </ul>")
     ),
     
