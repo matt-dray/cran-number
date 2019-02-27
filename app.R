@@ -13,8 +13,7 @@
 
 library(shiny)
 library(kevinbacran)
-cran_tidy <- readRDS("www/cran_tidy.RDS")
-cran_graph <- readRDS("www/cran_graph.RDS")
+hw_graphs <-readRDS("www/hw_graphs_no_error.RDS")
 
 
 # UI ----------------------------------------------------------------------
@@ -37,7 +36,7 @@ ui <- fluidPage(
       selectInput(
         inputId = "authorA",
         label = "Author:", 
-        choices = unique(cran_tidy$author),
+        choices = unique(hw_graphs$author_name),
         multiple = FALSE,
         selected = "Aaron Christ"),
       actionButton("go", "Go"),
@@ -61,7 +60,6 @@ ui <- fluidPage(
 # SERVER ------------------------------------------------------------------
 
 
-# Define a server for the Shiny app
 server <- function(input, output, session) {
   
   author_select <- eventReactive(input$go, {
@@ -70,25 +68,21 @@ server <- function(input, output, session) {
     
   })
   
-  
   output$cranDistance <- renderText({
     
-    pairs <- kb_pair(cran_graph, name_a = author_select())
-    
-    distance <- kb_distance(pairs)
-    
     aut_name <- author_select()
+    separation <- hw_graphs$hadley_separation[hw_graphs$author_name == aut_name]
     
-    return(paste0("Hadley Number for ", aut_name, ": ", distance))
+    return(paste0("Hadley Number for ", aut_name, ": ", separation))
     
   })
   
-  # Fill in the spot we created for a plot
   output$cranPlot <- renderPlot({
     
-    pairs <- kb_pair(cran_graph, name_a = author_select())
+    aut_name <- author_select()
+    graph <- hw_graphs$hadley_graph[hw_graphs$author_name == aut_name][[1]]
     
-    plot <- kb_plot(pair_graph = pairs) 
+    plot <- kb_plot(pair_graph = graph) 
     
     return(plot)
     
