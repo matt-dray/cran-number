@@ -77,7 +77,9 @@ server <- function(input, output, session) {
     
     distance <- kb_distance(pairs)
     
-    return(paste0("Hadley Number for ", input$authorA, ": ", distance))
+    aut_name <- author_select()
+    
+    return(paste0("Hadley Number for ", aut_name, ": ", distance))
     
   })
   
