@@ -7,6 +7,7 @@
 ## TL;DR (words)
 
 App: https://mattdray.shinyapps.io/hadley-number/
+
 Blog: https://www.rostrum.blog/2019/02/27/hadley-number/
 
 An app to demonstrate the [Six Degrees of Kevin Bacon](https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon). But it's for CRAN packages. And [Hadley Wickham](http://hadley.nz/) is Kevin Bacon.
