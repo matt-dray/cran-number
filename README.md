@@ -1,6 +1,10 @@
 # {kevinbacran} test: what's your Hadley Number?
 
-## TL;DR
+## TL;DR (gif)
+
+![](https://raw.githubusercontent.com/matt-dray/hadley-number/master/img/hadley-number.gif)
+
+## TL;DR (words)
 
 App: https://mattdray.shinyapps.io/hadley-number/
 Blog: https://www.rostrum.blog/2019/02/27/hadley-number/
