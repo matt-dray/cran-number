@@ -1,20 +1,31 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+# {kevinbacran} test: what's your Hadley Number?
+# Shiny app
+# Matt Dray
+# Feb 2019
 
+# A Shiny app. You select an author from the CRAN database and are presented
+# with the separation (in graph theory terms) between them and Hadley Wickham.
+# Akin to the 'Six Degrees of Separation'.
+
+# Read more:
+# * App URL: https://mattdray.shinyapps.io/hadley-number/ (subject to removal)
+# * Blog post: https://www.rostrum.blog/2019/02/27/hadley-number/
+# * {kevinbacran} pkgdown site: https://matt-dray.github.io/kevinbacran/
 
 # GLOBAL ------------------------------------------------------------------
 
 
+# Packages
 library(shiny)
-library(kevinbacran)
-library(shinyhelper)
-library(magrittr)
+library(kevinbacran)  # CRAN author database manipulation
+library(shinyhelper)  # for clickable '?' button to expose more info 
+library(magrittr)  # %>%
+
+# Read tibble object saved from graph_author_lookup.R
+# One row per author. Columns for (1) author name, (2) a tbl_graph object
+# of the shortest-path graph from that author to HW, and (3) the
+# separation value. The Shiny app then simply selects the appropriate
+# author-to-HW tidygraph to display given an input.
 hw_graphs <- readRDS("www/hw_graphs_no_error.RDS")
 
 
@@ -37,36 +48,46 @@ ui <- fluidPage(
         label = "Type CRAN author name and hit Go",
         choices = unique(hw_graphs$author_name),
         multiple = FALSE,
-        selected = "Aaron Christ") %>% 
+        selected = "Aaron Christ"
+      ) %>% 
         helper(
           type = "inline",
-          title = "Note on data",
+          title = "Notes on the app",
           content = c(
-            "The data in the app reflect a snapshot of CRAN from 26 February 2018.<br>",
-            "{kevinbacran} relies on some other packages for heavy lifting.<br>",
-            "Data fetched via <code>CRAN_package_db()</code> from {tools}.<br>",
-            "Data cleaning via <code>clean_CRAN_db()</code> from {cranly}.<br>",
-            "Graphs created, manipulated and plotted via {tidygraph} and {ggraph}.<br>",
-            "Authors are excluded where {tidygraph} could not assess the shortest path."
+            "The data in the app reflect a snapshot of CRAN from 26 February
+            2018.<br>",
+            "Authors are excluded where {tidygraph} could not assess the
+            shortest path.<br>",
+            "{kevinbacran} depends on {cranly}, {dplyr}, {ggplot2}, {ggraph},
+            {purrr}, {tidygraph} and {tidyr}.<br>",
+            "See <a href='https://matt-dray.github.io/kevinbacran/'>the
+            {kevinbacran} documentation</a> for full citations.<br>",
+            "The app was built with
+            <a href='https://CRAN.R-project.org/package=shiny'>{shiny}</a> and
+            <a href='https://CRAN.R-project.org/package=shinyhelper'>{shinyhelper}</a>"
           ),
-          size = "s"),
+          size = "s"
+        ),
       actionButton("go", "Go"),
       p(),
-      HTML("The {kevinbacran} package helps calculate the separation of any two
-           authors on the CRAN-package network graph."),
+      HTML("The <a href='https://matt-dray.github.io/kevinbacran/'>{kevinbacran} 
+           package</a> helps calculate the separation of any two authors on the
+           <a href='https://cran.r-project.org/'>CRAN</a>-package 
+           <a href='https://en.wikipedia.org/wiki/Graph_theory'>network graph</a>."),
       p(),
       HTML("It's like <a href='https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon'>
            the Six Degrees of Kevin Bacon</a>. Except it's for CRAN authors.
            And in this example, <a href='http://hadley.nz/'>Hadley Wickham</a>
            is Kevin Bacon."),
       p(),
-
+      
       HTML("Why not:
            <ul>
            <li>toot me <a href='https://www.twitter.com/mattdray/'>@mattdray</a></li>
-           <li>read more in this <a href='https://rostrum.blog/2019/02/27/hadley-number/'>blogpost</a></li>
+           <li><a href='https://rostrum.blog/2019/02/27/hadley-number/'>read about</a> about the package/app</li>
+           <li><a href='https://rostrum.blog/2019/02/27/hadley-number/'>read about</a> analysis of the network</li>
            <li>try <a href='https://matt-dray.github.io/kevinbacran/'>{kevinbacran}</a></li>
-           <li>get the source on <a href='https://github.com/matt-dray/hadley-number/'>GitHub</a></li>
+           <li>get the app source on <a href='https://github.com/matt-dray/hadley-number/'>GitHub</a></li>
            </ul>")
     ),
     
@@ -76,8 +97,8 @@ ui <- fluidPage(
       plotOutput("cranPlot")  
     )
     
-  )
-)
+  )  # end sidebarLayout()
+)  # end fluidPage
 
 
 # SERVER ------------------------------------------------------------------
@@ -93,6 +114,7 @@ server <- function(input, output, session) {
     
   })
   
+  # Separation value of selected author and target
   output$cranDistance <- renderText({
     
     aut_name <- author_select()
@@ -102,6 +124,7 @@ server <- function(input, output, session) {
     
   })
   
+  # Plot of shortest path
   output$cranPlot <- renderPlot({
     
     aut_name <- author_select()
