@@ -43,6 +43,7 @@ ui <- fluidPage(
     
     # Define the sidebar with one input
     sidebarPanel(
+      
       selectInput(
         inputId = "authorA",
         label = "Type CRAN author name and hit Go",
@@ -50,6 +51,7 @@ ui <- fluidPage(
         multiple = FALSE,
         selected = "Aaron Christ"
       ) %>% 
+        
         helper(
           type = "inline",
           title = "Notes on the app",
@@ -68,7 +70,11 @@ ui <- fluidPage(
           ),
           size = "s"
         ),
+      
       actionButton("go", "Go"),
+      
+      hr(),
+      
       p(),
       HTML("The <a href='https://matt-dray.github.io/kevinbacran/'>{kevinbacran} 
            package</a> helps calculate the separation of any two authors on the
@@ -80,15 +86,18 @@ ui <- fluidPage(
            And in this example, <a href='http://hadley.nz/'>Hadley Wickham</a>
            is Kevin Bacon."),
       p(),
-      
       HTML("Why not:
            <ul>
            <li>toot me <a href='https://www.twitter.com/mattdray/'>@mattdray</a></li>
            <li>read about <a href='https://rostrum.blog/2019/02/27/hadley-number/'>the package/app</a></li>
-           <li>read about <a href='https://rostrum.blog/2019/02/27/hadley-number/'>analysis of the network</a></li>
+           <li>read about <a href='https://nacnudus.github.io/duncangarmonsway/posts/2019-02-27-with-added-bacran/'>analysis of the network</a></li>
            <li>try <a href='https://matt-dray.github.io/kevinbacran/'>{kevinbacran}</a></li>
            <li>get the app source on <a href='https://github.com/matt-dray/hadley-number/'>GitHub</a></li>
-           </ul>")
+           </ul>"),
+      
+      hr(),
+      
+      HTML("<center><img src='https://raw.githubusercontent.com/matt-dray/stickers/master/output/kevinbacran_hex.png' width='100'></center>")
     ),
     
     # Create a spot for the barplot
