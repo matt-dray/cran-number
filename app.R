@@ -84,8 +84,8 @@ ui <- fluidPage(
       HTML("Why not:
            <ul>
            <li>toot me <a href='https://www.twitter.com/mattdray/'>@mattdray</a></li>
-           <li><a href='https://rostrum.blog/2019/02/27/hadley-number/'>read about</a> about the package/app</li>
-           <li><a href='https://rostrum.blog/2019/02/27/hadley-number/'>read about</a> analysis of the network</li>
+           <li>read about <a href='https://rostrum.blog/2019/02/27/hadley-number/'>the package/app</a></li>
+           <li>read about <a href='https://rostrum.blog/2019/02/27/hadley-number/'>analysis of the network</a></li>
            <li>try <a href='https://matt-dray.github.io/kevinbacran/'>{kevinbacran}</a></li>
            <li>get the app source on <a href='https://github.com/matt-dray/hadley-number/'>GitHub</a></li>
            </ul>")
