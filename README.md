@@ -20,7 +20,7 @@ You can read more about the {kevinbacran} package, which underlies this app, in 
 
 # Access
 
-The app is [live on shinyapps.io](: https://mattdray.shinyapps.io/hadley-number/) (so it's throttled at 25 hours of active use per month; I may also take it down at any time).
+The app is [live on shinyapps.io](https://mattdray.shinyapps.io/hadley-number/) (so it's throttled at 25 hours of active use per month; I may also take it down at any time).
 
 You can also install the app for local viewing. Run the following from an R session:
 
